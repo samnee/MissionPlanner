@@ -14,6 +14,7 @@ using System.Threading;
 using System.Windows.Forms;
 using log4net;
 using MissionPlanner.GCSViews;
+using guint = System.UInt32;
 
 namespace MissionPlanner.Utilities
 {
@@ -27,6 +28,116 @@ namespace MissionPlanner.Utilities
         static object _lock = new object();
 
         //static NamedPipeServerStream pipeServer = new NamedPipeServerStream("gstreamer", PipeDirection.In);
+
+        [DllImport("libgstreamer-1.0-0.dll", CallingConvention = CallingConvention.Cdecl)]
+       public static extern void gst_init(ref int argc, ref IntPtr[] argv);
+
+        [DllImport("libgstreamer-1.0-0.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void gst_init(IntPtr argc, IntPtr argv);
+
+        [DllImport("libgstreamer-1.0-0.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool gst_init_check(ref int argc, ref IntPtr[] argv, out IntPtr error);
+
+        [DllImport("libgstreamer-1.0-0.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool gst_init_check(IntPtr argc, IntPtr argv, out IntPtr error);
+
+        [DllImport("libgstreamer-1.0-0.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void gst_version(ref guint major,
+           ref guint minor,
+           ref guint micro,
+           ref guint nano);
+
+        [DllImport("libgstreamer-1.0-0.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern UIntPtr gst_buffer_extract(IntPtr raw, UIntPtr offset, byte[] dest, UIntPtr size);
+
+
+        [DllImport("libgstreamer-1.0-0.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void gst_buffer_extract_dup(IntPtr raw, UIntPtr offset, UIntPtr size, out IntPtr dest, out UIntPtr dest_size);
+
+        [DllImport("libgstreamer-1.0-0.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr gst_pipeline_new(string name);
+
+        [DllImport("libgstreamer-1.0-0.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr gst_element_factory_make(string factoryname, string name);
+
+        [DllImport("libgstreamer-1.0-0.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void gst_message_parse_error(IntPtr msg, out IntPtr err, out IntPtr debug);
+
+        [DllImport("libgstreamer-1.0-0.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr gst_message_get_stream_status_object(IntPtr raw);
+
+        [DllImport("libgstreamer-1.0-0.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void gst_element_set_state(IntPtr pipeline, GstState gST_STATE_PLAYING);
+
+        [DllImport("libgstreamer-1.0-0.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr gst_parse_launch(string cmdline, out IntPtr error);
+
+        [DllImport("libgstreamer-1.0-0.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr gst_bus_timed_pop_filtered(IntPtr bus, ulong gST_CLOCK_TIME_NONE, GstMessageType gstMessageType);
+   
+        [DllImport("libgstreamer-1.0-0.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr gst_element_get_bus(IntPtr pipeline);
+
+        [DllImport("libgstreamer-1.0-0.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void gst_message_set_stream_status_object(IntPtr raw, IntPtr value);
+
+        public const UInt64 GST_CLOCK_TIME_NONE = 18446744073709551615;
+
+        public enum GstState
+        {
+            GST_STATE_VOID_PENDING = 0,
+            GST_STATE_NULL = 1,
+            GST_STATE_READY = 2,
+            GST_STATE_PAUSED = 3,
+            GST_STATE_PLAYING = 4
+        }
+
+        public enum GstMessageType
+        {
+            GST_MESSAGE_UNKNOWN = 0,
+            GST_MESSAGE_EOS = (1 << 0),
+            GST_MESSAGE_ERROR = (1 << 1),
+            GST_MESSAGE_WARNING = (1 << 2),
+            GST_MESSAGE_INFO = (1 << 3),
+            GST_MESSAGE_TAG = (1 << 4),
+            GST_MESSAGE_BUFFERING = (1 << 5),
+            GST_MESSAGE_STATE_CHANGED = (1 << 6),
+            GST_MESSAGE_STATE_DIRTY = (1 << 7),
+            GST_MESSAGE_STEP_DONE = (1 << 8),
+            GST_MESSAGE_CLOCK_PROVIDE = (1 << 9),
+            GST_MESSAGE_CLOCK_LOST = (1 << 10),
+            GST_MESSAGE_NEW_CLOCK = (1 << 11),
+            GST_MESSAGE_STRUCTURE_CHANGE = (1 << 12),
+            GST_MESSAGE_STREAM_STATUS = (1 << 13),
+            GST_MESSAGE_APPLICATION = (1 << 14),
+            GST_MESSAGE_ELEMENT = (1 << 15),
+            GST_MESSAGE_SEGMENT_START = (1 << 16),
+            GST_MESSAGE_SEGMENT_DONE = (1 << 17),
+            GST_MESSAGE_DURATION = (1 << 18),
+            GST_MESSAGE_LATENCY = (1 << 19),
+            GST_MESSAGE_ASYNC_START = (1 << 20),
+            GST_MESSAGE_ASYNC_DONE = (1 << 21),
+            GST_MESSAGE_REQUEST_STATE = (1 << 22),
+            GST_MESSAGE_STEP_START = (1 << 23),
+            GST_MESSAGE_QOS = (1 << 24),
+            GST_MESSAGE_PROGRESS = (1 << 25),
+            GST_MESSAGE_ANY = ~0
+        }
+        
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct GstObject
+        {
+            IntPtr _lock;
+            public string name;
+            public Object parent;
+            public uint flags;
+            IntPtr controlBindings;
+            public int control_rate;
+            public int last_sync;
+
+            private IntPtr[] _gstGstReserved;
+        }
 
         ~GStreamer()
         {

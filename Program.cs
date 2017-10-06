@@ -53,6 +53,42 @@ namespace MissionPlanner
                 "If your error is about Microsoft.DirectX.DirectInput, please install the latest directx redist from here http://www.microsoft.com/en-us/download/details.aspx?id=35 \n\n");
             Console.WriteLine("Debug under mono    MONO_LOG_LEVEL=debug mono MissionPlanner.exe");
 
+            string pathvar = System.Environment.GetEnvironmentVariable("PATH");
+            System.Environment.SetEnvironmentVariable("PATH", pathvar + @";C:\gstreamer\1.0\x86_64\bin\");
+
+            GStreamer.gst_init(IntPtr.Zero, IntPtr.Zero);
+
+            IntPtr error;
+            GStreamer.gst_init_check( IntPtr.Zero, IntPtr.Zero, out error);
+
+            uint v1 = 0, v2 = 0, v3 = 0, v4 = 0;
+            GStreamer.gst_version(ref v1, ref v2, ref v3, ref v4);
+
+            var pipeline = GStreamer.gst_pipeline_new("audio-player");
+            var source = GStreamer.gst_element_factory_make("filesrc", "file-source");
+            var demuxer = GStreamer.gst_element_factory_make("oggdemux", "ogg-demuxer");
+            var decoder = GStreamer.gst_element_factory_make("vorbisdec", "vorbis-decoder");
+            var conv = GStreamer.gst_element_factory_make("audioconvert", "converter");
+            var sink = GStreamer.gst_element_factory_make("autoaudiosink", "audio-output");
+
+            /* Set up the pipeline */
+
+            pipeline = GStreamer.gst_parse_launch(@"videotestsrc ! video/x-raw, width=1280, height=720, framerate=30/1 ! 
+clockoverlay ! glimagesink", out error);
+/*
+x264enc speed-preset=1 threads=1 sliced-threads=1 mb-tree=0
+rc-lookahead=0 sync-lookahead=0 bframes=0 ! rtph264pay ! udpsink port=5600 host=127.0.0.1", out error);
+*/
+            /* Start playing */
+            GStreamer.gst_element_set_state(pipeline, GStreamer.GstState.GST_STATE_PLAYING);
+
+            /* Wait until error or EOS */
+            var bus = GStreamer.gst_element_get_bus(pipeline);
+            var msg = GStreamer.gst_bus_timed_pop_filtered(bus, GStreamer.GST_CLOCK_TIME_NONE, GStreamer.GstMessageType.GST_MESSAGE_ERROR | GStreamer.GstMessageType.GST_MESSAGE_EOS);
+
+
+            return;
+
             var t = Type.GetType("Mono.Runtime");
             MONO = (t != null);
 
