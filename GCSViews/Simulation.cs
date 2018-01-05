@@ -419,7 +419,16 @@ namespace MissionPlanner.GCSViews
 
                         if (comPort.BaseStream.IsOpen)
                         {
-                            processArduPilot();
+                            //processArduPilot();
+                            // nzg md 20180105
+                            if(RAD_softFlightGear.Checked)
+                            {
+                                processArduPilotFG();
+                            }
+                            else
+                            {
+                                processArduPilot();
+                            }
                             hzcount2++;
                         }
                     }
@@ -859,7 +868,11 @@ namespace MissionPlanner.GCSViews
             //      return;
 
             comPort.sendPacket(hilstate,comPort.sysidcurrent,comPort.compidcurrent);
-
+           // if(!RAD_softFlightGear.Checked) // nzg md 20180105
+           // {
+            //    comPort.sendPacket(hilstate, comPort.sysidcurrent, comPort.compidcurrent);
+           // }
+        //    OutputLog.AppendText("here - hiltstate\n");
 
             //            comPort.sendPacket(oldgps);
 
@@ -923,6 +936,8 @@ namespace MissionPlanner.GCSViews
 
         private void processArduPilot()
         {
+            bool is_copter = true;
+
             float roll_out, pitch_out, throttle_out, rudder_out;
 
             roll_out = (MainV2.comPort.MAV.cs.ch1out - 1500)/rollgain;
@@ -936,6 +951,17 @@ namespace MissionPlanner.GCSViews
             pitch_out = Constrain(pitch_out, -1, 1);
             rudder_out = Constrain(rudder_out, -1, 1);
             throttle_out = Constrain(throttle_out, 0, 1);
+
+            float ch1out, ch2out, ch3out, ch4out;
+            ch1out = (MainV2.comPort.MAV.cs.ch1out - 1000) / rollgain;
+            ch2out = (MainV2.comPort.MAV.cs.ch2out - 1000) / pitchgain;
+            ch3out = (MainV2.comPort.MAV.cs.ch3out - 1000) / ruddergain;
+            ch4out = (MainV2.comPort.MAV.cs.ch4out - 1000) / throttlegain;
+
+            ch1out = Constrain(ch1out, 0, 1);
+            ch2out = Constrain(ch2out, 0, 1);
+            ch3out = Constrain(ch3out, 0, 1);
+            ch4out = Constrain(ch4out, 0, 1);
 
             try
             {
@@ -993,9 +1019,18 @@ namespace MissionPlanner.GCSViews
                             }
                             else
                             {
-                                updateScreenDisplay(DATA[20][0]*deg2rad, DATA[20][1]*deg2rad, DATA[20][2]*.3048,
-                                    DATA[17][1]*deg2rad, DATA[17][0]*deg2rad, DATA[18][2]*deg2rad, DATA[17][2]*deg2rad,
-                                    roll_out, pitch_out, rudder_out, throttle_out);
+                                if (!is_copter)
+                                {
+                                    updateScreenDisplay(DATA[20][0] * deg2rad, DATA[20][1] * deg2rad, DATA[20][2] * .3048,
+                                        DATA[17][1] * deg2rad, DATA[17][0] * deg2rad, DATA[18][2] * deg2rad, DATA[17][2] * deg2rad,
+                                        roll_out, pitch_out, rudder_out, throttle_out);
+                                }
+                                else
+                                {
+                                    updateScreenDisplay(DATA[20][0] * deg2rad, DATA[20][1] * deg2rad, DATA[20][2] * .3048,
+                                        DATA[17][1] * deg2rad, DATA[17][0] * deg2rad, DATA[18][2] * deg2rad, DATA[17][2] * deg2rad,
+                                        ch1out, ch2out, ch3out, ch4out);
+                                }
                             }
                         }
                     }
@@ -1108,11 +1143,21 @@ namespace MissionPlanner.GCSViews
                 Xplane[4] = 0;
 
                 Array.Copy(BitConverter.GetBytes(25), 0, Xplane, 5, 4); // packet index
-
-                Array.Copy(BitConverter.GetBytes(throttle_out), 0, Xplane, 9, 4); // start data
-                Array.Copy(BitConverter.GetBytes(throttle_out), 0, Xplane, 13, 4);
-                Array.Copy(BitConverter.GetBytes(throttle_out), 0, Xplane, 17, 4);
-                Array.Copy(BitConverter.GetBytes(throttle_out), 0, Xplane, 21, 4);
+                if (!is_copter)
+                {
+                    Array.Copy(BitConverter.GetBytes(throttle_out), 0, Xplane, 9, 4); // start data
+                    Array.Copy(BitConverter.GetBytes(throttle_out), 0, Xplane, 13, 4);
+                    Array.Copy(BitConverter.GetBytes(throttle_out), 0, Xplane, 17, 4);
+                    Array.Copy(BitConverter.GetBytes(throttle_out), 0, Xplane, 21, 4);
+                }
+                else
+                {
+                    // nzg add 20171229
+                    Array.Copy(BitConverter.GetBytes(ch3out), 0, Xplane, 9, 4); // start data
+                    Array.Copy(BitConverter.GetBytes(ch1out), 0, Xplane, 13, 4);
+                    Array.Copy(BitConverter.GetBytes(ch2out), 0, Xplane, 17, 4);
+                    Array.Copy(BitConverter.GetBytes(ch4out), 0, Xplane, 21, 4);
+                }
 
                 Array.Copy(BitConverter.GetBytes(-999), 0, Xplane, 25, 4);
                 Array.Copy(BitConverter.GetBytes(-999), 0, Xplane, 29, 4);
@@ -1142,6 +1187,109 @@ namespace MissionPlanner.GCSViews
                     log.Info("Xplanes udp send error " + e.Message);
                 }
             }
+        }
+
+        HIL.MultiCopter quad = new HIL.MultiCopter();
+        private void processArduPilotFG()
+        {
+            double[] m = new double[4]; // 11
+
+            for (int a = 0; a < m.Length; a++)
+                m[a] = 0;
+
+            m[0] = (ushort)MainV2.comPort.MAV.cs.ch1out;
+            m[1] = (ushort)MainV2.comPort.MAV.cs.ch2out;
+            m[2] = (ushort)MainV2.comPort.MAV.cs.ch3out;
+            m[3] = (ushort)MainV2.comPort.MAV.cs.ch4out;
+
+            try
+            {
+                if (lastfdmdata.version == 0)
+                    return;
+
+                quad.update(ref m, lastfdmdata);
+
+                Vector3 earth_rates = Utils.BodyRatesToEarthRates(quad.dcm, quad.gyro);
+                quad.dcm.to_euler(ref quad.roll, ref quad.pitch, ref quad.yaw);
+                //quad.dcm.to_euler(ref roll, ref pitch, ref yaw);
+
+                // send to apm
+                MAVLink.mavlink_hil_state_t hilstate = new MAVLink.mavlink_hil_state_t();
+
+                hilstate.time_usec = (UInt64)DateTime.Now.Ticks; // microsec
+
+                hilstate.lat = (int)(quad.latitude * 1e7); // * 1E7
+                hilstate.lon = (int)(quad.longitude * 1e7); // * 1E7
+                hilstate.alt = (int)(quad.altitude * 1000); // mm
+
+                quad.dcm.to_euler(ref quad.roll, ref quad.pitch, ref quad.yaw);
+
+                if (double.IsNaN(quad.roll))
+                {
+                    quad.dcm.identity();
+                }
+
+                hilstate.roll = (float)quad.roll;
+                hilstate.pitch = (float)quad.pitch;
+                hilstate.yaw = (float)quad.yaw;
+
+                //Vector3 earth_rates2 = Utils.BodyRatesToEarthRates(quad.dcm, quad.gyro);
+
+                hilstate.rollspeed = (float)quad.gyro.x;
+                hilstate.pitchspeed = (float)quad.gyro.y;
+                hilstate.yawspeed = (float)quad.gyro.z;
+
+                //hilstate.rollspeed = (float)earth_rates2.x;
+                //hilstate.pitchspeed = (float)earth_rates2.y;
+                //hilstate.yawspeed = (float)earth_rates2.z;
+
+                hilstate.vx = (short)(quad.velocity.y * 100); // m/s * 100
+                hilstate.vy = (short)(quad.velocity.x * 100); // m/s * 100
+                hilstate.vz = (short)(quad.velocity.z * 100); // m/s * 100
+
+                hilstate.xacc = (short)(quad.accelerometer.x * 100); // (mg)
+                hilstate.yacc = (short)(quad.accelerometer.y * 100); // (mg)
+                hilstate.zacc = (short)(quad.accelerometer.z * 100); // (mg)
+
+                // MainV2.comPort.sendPacket(hilstate);
+                MainV2.comPort.sendPacket(hilstate, comPort.sysidcurrent, comPort.compidcurrent);
+            }
+            catch (Exception e) { log.Info("Quad hill error " + e.ToString()); }
+
+            byte[] FlightGear = new byte[8 * 11];// StructureToByteArray(fg);
+
+            Array.Copy(BitConverter.GetBytes((double)(quad.motor_speed[0])), 0, FlightGear, 0, 8);
+            Array.Copy(BitConverter.GetBytes((double)(quad.motor_speed[1])), 0, FlightGear, 8, 8);
+            Array.Copy(BitConverter.GetBytes((double)(quad.motor_speed[2])), 0, FlightGear, 16, 8);
+            Array.Copy(BitConverter.GetBytes((double)(quad.motor_speed[3])), 0, FlightGear, 24, 8);
+            Array.Copy(BitConverter.GetBytes((double)(quad.latitude)), 0, FlightGear, 32, 8);
+            Array.Copy(BitConverter.GetBytes((double)(quad.longitude)), 0, FlightGear, 40, 8);
+            Array.Copy(BitConverter.GetBytes((double)(quad.altitude * 1 / ft2m)), 0, FlightGear, 48, 8);
+            Array.Copy(BitConverter.GetBytes((double)((quad.altitude - quad.ground_level) * 1 / ft2m)), 0, FlightGear, 56, 8);
+            Array.Copy(BitConverter.GetBytes((double)(quad.roll * rad2deg)), 0, FlightGear, 64, 8);
+            Array.Copy(BitConverter.GetBytes((double)(quad.pitch * rad2deg)), 0, FlightGear, 72, 8);
+            Array.Copy(BitConverter.GetBytes((double)(quad.yaw * rad2deg)), 0, FlightGear, 80, 8);
+
+            Array.Reverse(FlightGear, 0, 8);
+            Array.Reverse(FlightGear, 8, 8);
+            Array.Reverse(FlightGear, 16, 8);
+            Array.Reverse(FlightGear, 24, 8);
+            Array.Reverse(FlightGear, 32, 8);
+            Array.Reverse(FlightGear, 40, 8);
+            Array.Reverse(FlightGear, 48, 8);
+            Array.Reverse(FlightGear, 56, 8);
+            Array.Reverse(FlightGear, 64, 8);
+            Array.Reverse(FlightGear, 72, 8);
+            Array.Reverse(FlightGear, 80, 8);
+
+            try
+            {
+                XplanesSEND.Send(FlightGear, FlightGear.Length);
+            }
+            catch (Exception) { log.Info("Socket Write failed, FG closed?"); }
+
+            updateScreenDisplay(lastfdmdata.latitude, lastfdmdata.longitude, lastfdmdata.altitude * .3048, lastfdmdata.phi, lastfdmdata.theta, lastfdmdata.psi, lastfdmdata.psi, m[0], m[1], m[2], m[3]);
+
         }
 
         private void setupXplane()

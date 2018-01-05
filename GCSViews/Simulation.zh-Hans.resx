@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="label12.Text" xml:space="preserve">
-    <value>Roll</value>
+    <value>CH1</value>
   </data>
   <data name="label10.Text" xml:space="preserve">
     <value>高度ERR</value>
@@ -130,7 +130,7 @@
     <value>直机</value>
   </data>
   <data name="label13.Text" xml:space="preserve">
-    <value>Pitch</value>
+    <value>CH2</value>
   </data>
   <data name="label16.Text" xml:space="preserve">
     <value>自动驾驶仪输出</value>
@@ -139,7 +139,7 @@
     <value>飞机IMU</value>
   </data>
   <data name="label14.Text" xml:space="preserve">
-    <value>Yaw</value>
+    <value>CH3</value>
   </data>
   <data name="RAD_JSBSim.ToolTip" xml:space="preserve">
     <value>Can do 飞机/直机/四轴</value>
@@ -148,7 +148,7 @@
     <value>GPS刷新率</value>
   </data>
   <data name="label15.Text" xml:space="preserve">
-    <value>油门</value>
+    <value>CH4</value>
   </data>
   <data name="label18.Text" xml:space="preserve">
     <value>自动驾驶仪状态</value>
@@ -169,22 +169,22 @@
     <value>开始 FG 四轴</value>
   </data>
   <data name="label22.Text" xml:space="preserve">
-    <value>Roll增益</value>
+    <value>CH1增益</value>
   </data>
   <data name="label23.Text" xml:space="preserve">
-    <value>Pitch增益</value>
+    <value>CH2增益</value>
   </data>
   <data name="CHK_quad.Text" xml:space="preserve">
     <value>四轴</value>
   </data>
   <data name="label24.Text" xml:space="preserve">
-    <value>方向舵增益</value>
+    <value>CH3增益</value>
   </data>
   <data name="label2.Text" xml:space="preserve">
     <value>经度</value>
   </data>
   <data name="label25.Text" xml:space="preserve">
-    <value>油门增益</value>
+    <value>CH4增益</value>
   </data>
   <data name="label3.Text" xml:space="preserve">
     <value>高度</value>

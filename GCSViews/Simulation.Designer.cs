@@ -661,6 +661,8 @@
             // CHK_xplane10
             // 
             resources.ApplyResources(this.CHK_xplane10, "CHK_xplane10");
+            this.CHK_xplane10.Checked = true;
+            this.CHK_xplane10.CheckState = System.Windows.Forms.CheckState.Checked;
             this.CHK_xplane10.Name = "CHK_xplane10";
             this.CHK_xplane10.UseVisualStyleBackColor = true;
             // 
