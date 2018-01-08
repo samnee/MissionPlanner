@@ -1194,13 +1194,26 @@ namespace MissionPlanner.GCSViews
         {
             double[] m = new double[4]; // 11
 
-            for (int a = 0; a < m.Length; a++)
-                m[a] = 0;
+            for (int i = 0; i < m.Length; i++)
+            {
+                m[i] = 0;
+            }               
 
-            m[0] = (ushort)MainV2.comPort.MAV.cs.ch1out;
-            m[1] = (ushort)MainV2.comPort.MAV.cs.ch2out;
-            m[2] = (ushort)MainV2.comPort.MAV.cs.ch3out;
-            m[3] = (ushort)MainV2.comPort.MAV.cs.ch4out;
+            int[] g = new int[4];   // gain
+            g[0] = int.Parse(TXT_rollgain.Text);
+            g[1] = int.Parse(TXT_pitchgain.Text);
+            g[2] = int.Parse(TXT_ruddergain.Text);
+            g[3] = int.Parse(TXT_throttlegain.Text);
+
+            m[0] = (double)MainV2.comPort.MAV.cs.ch1out;
+            m[1] = (double)MainV2.comPort.MAV.cs.ch2out;
+            m[2] = (double)MainV2.comPort.MAV.cs.ch3out;
+            m[3] = (double)MainV2.comPort.MAV.cs.ch4out;
+
+            for (int i = 0; i < m.Length; i++)
+            {
+                m[i] = 1000 + (m[i] - 1000) / g[i];
+            }               
 
             try
             {
