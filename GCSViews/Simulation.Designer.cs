@@ -109,6 +109,7 @@
             this.RAD_JSBSim = new System.Windows.Forms.RadioButton();
             this.CHK_xplane10 = new System.Windows.Forms.CheckBox();
             this.BUT_sitl = new MissionPlanner.Controls.MyButton();
+            this.CHK_debug = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -233,8 +234,8 @@
             // 
             // RAD_softXplanes
             // 
+            this.RAD_softXplanes.AutoCheck = false;
             resources.ApplyResources(this.RAD_softXplanes, "RAD_softXplanes");
-            this.RAD_softXplanes.Checked = true;
             this.RAD_softXplanes.Name = "RAD_softXplanes";
             this.RAD_softXplanes.TabStop = true;
             this.toolTip1.SetToolTip(this.RAD_softXplanes, resources.GetString("RAD_softXplanes.ToolTip"));
@@ -244,7 +245,9 @@
             // RAD_softFlightGear
             // 
             resources.ApplyResources(this.RAD_softFlightGear, "RAD_softFlightGear");
+            this.RAD_softFlightGear.Checked = true;
             this.RAD_softFlightGear.Name = "RAD_softFlightGear";
+            this.RAD_softFlightGear.TabStop = true;
             this.toolTip1.SetToolTip(this.RAD_softFlightGear, resources.GetString("RAD_softFlightGear.ToolTip"));
             this.RAD_softFlightGear.UseVisualStyleBackColor = true;
             this.RAD_softFlightGear.CheckedChanged += new System.EventHandler(this.RAD_softFlightGear_CheckedChanged);
@@ -673,10 +676,17 @@
             this.BUT_sitl.UseVisualStyleBackColor = true;
             this.BUT_sitl.Click += new System.EventHandler(this.BUT_sitl_Click);
             // 
+            // CHK_debug
+            // 
+            resources.ApplyResources(this.CHK_debug, "CHK_debug");
+            this.CHK_debug.Name = "CHK_debug";
+            this.CHK_debug.UseVisualStyleBackColor = true;
+            // 
             // Simulation
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.CHK_debug);
             this.Controls.Add(this.BUT_sitl);
             this.Controls.Add(this.CHK_xplane10);
             this.Controls.Add(this.RAD_JSBSim);
@@ -801,5 +811,6 @@
         private System.Windows.Forms.RadioButton RAD_JSBSim;
         private System.Windows.Forms.CheckBox CHK_xplane10;
         private Controls.MyButton BUT_sitl;
+        private System.Windows.Forms.CheckBox CHK_debug;
     }
 }

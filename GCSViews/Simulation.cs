@@ -325,7 +325,12 @@ namespace MissionPlanner.GCSViews
 
                 if (hzcounttime.Second != DateTime.Now.Second)
                 {
-                    Console.WriteLine("SIM recv hz {0} processArduPilot hz {1}", hzcount, hzcount2);
+                    //Console.WriteLine("SIM recv hz {0} processArduPilot hz {1}", hzcount, hzcount2);
+                    // nzg md 20180109
+                    if(CHK_debug.Checked)
+                    {
+                        OutputLog.AppendText("SIM recv " + hzcount+ " hz, processArduPilot " + hzcount2 + " hz  . \n");
+                    }
                     hzcount = 0;
                     hzcount2 = 0;
                     hzcounttime = DateTime.Now;
@@ -1301,8 +1306,60 @@ namespace MissionPlanner.GCSViews
             }
             catch (Exception) { log.Info("Socket Write failed, FG closed?"); }
 
-            updateScreenDisplay(lastfdmdata.latitude, lastfdmdata.longitude, lastfdmdata.altitude * .3048, lastfdmdata.phi, lastfdmdata.theta, lastfdmdata.psi, lastfdmdata.psi, m[0], m[1], m[2], m[3]);
 
+            try
+            {
+                if (displayfull)
+                {
+                    // This updates the servo graphs
+                    var time = (Environment.TickCount - tickStart) / 1000.0;
+
+                    if (CHKgraphroll.Checked)
+                    {
+                        list.Add(time, m[0]);
+                    }
+                    else
+                    {
+                        list.Clear();
+                    }
+                    if (CHKgraphpitch.Checked)
+                    {
+                        list2.Add(time, m[1]);
+                    }
+                    else
+                    {
+                        list2.Clear();
+                    }
+                    if (CHKgraphrudder.Checked)
+                    {
+                        list3.Add(time, m[2]);
+                    }
+                    else
+                    {
+                        list3.Clear();
+                    }
+                    if (CHKgraphthrottle.Checked)
+                    {
+                        list4.Add(time, m[3]);
+                    }
+                    else
+                    {
+                        list4.Clear();
+                    }
+                }
+
+                if (packetssent % 10 == 0) // reduce cpu usage
+                {
+                    updateScreenDisplay(lastfdmdata.latitude, lastfdmdata.longitude, lastfdmdata.altitude * .3048, lastfdmdata.phi, lastfdmdata.theta, lastfdmdata.psi, lastfdmdata.psi, m[0], m[1], m[2], m[3]);
+                }
+
+            }
+            catch (Exception e)
+            {
+                log.Info("Error updating screen stuff" + e);
+            }
+
+            packetssent++;
         }
 
         private void setupXplane()
@@ -1499,14 +1556,15 @@ namespace MissionPlanner.GCSViews
 
             LineItem myCurve;
 
-            myCurve = myPane.AddCurve("Roll", list, Color.Red, SymbolType.None);
-
-            myCurve = myPane.AddCurve("Pitch", list2, Color.Blue, SymbolType.None);
-
-            myCurve = myPane.AddCurve("Rudder", list3, Color.Green, SymbolType.None);
-
-            myCurve = myPane.AddCurve("Throttle", list4, Color.Orange, SymbolType.None);
-
+            // myCurve = myPane.AddCurve("Roll", list, Color.Red, SymbolType.None);
+            // myCurve = myPane.AddCurve("Pitch", list2, Color.Blue, SymbolType.None);
+            // myCurve = myPane.AddCurve("Rudder", list3, Color.Green, SymbolType.None);
+            // myCurve = myPane.AddCurve("Throttle", list4, Color.Orange, SymbolType.None);
+            // nzg md 
+            myCurve = myPane.AddCurve("CH1", list, Color.Red, SymbolType.None);
+            myCurve = myPane.AddCurve("CH2", list2, Color.Blue, SymbolType.None);
+            myCurve = myPane.AddCurve("CH3", list3, Color.Green, SymbolType.None);
+            myCurve = myPane.AddCurve("CH4", list4, Color.Orange, SymbolType.None);
 
             // Show the x axis grid
             myPane.XAxis.MajorGrid.IsVisible = true;
