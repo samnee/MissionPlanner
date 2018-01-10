@@ -346,7 +346,16 @@ namespace MissionPlanner.GCSViews
                         {
                             var recv = SimulatorRECV.ReceiveFrom(udpdata, ref Remote);
 
-                            RECVprocess(udpdata, recv, comPort);
+                            // nzg md 20180110
+                            // RECVprocess(udpdata, recv, comPort);
+                            if (RAD_softFlightGear.Checked && CHK_quad.Checked)
+                            {
+                                RECVprocessFG(udpdata, recv, comPort);
+                            }
+                            else
+                            {
+                                RECVprocess(udpdata, recv, comPort);
+                            }                           
 
                             hzcount++;
                         }
@@ -426,7 +435,7 @@ namespace MissionPlanner.GCSViews
                         {
                             //processArduPilot();
                             // nzg md 20180105
-                            if(RAD_softFlightGear.Checked)
+                            if(RAD_softFlightGear.Checked && CHK_quad.Checked)
                             {
                                 processArduPilotFG();
                             }
@@ -889,6 +898,22 @@ namespace MissionPlanner.GCSViews
             pres.press_diff1 = (short) (int) (calc - 101325); // 0 alt is 0 pa
 
             // comPort.sendPacket(pres);
+        }
+
+        private void RECVprocessFG(byte[] data, int receviedbytes, MAVLinkInterface comPort)
+        {    
+            // if (receviedbytes == 0x64) // FG binary udp
+            if (receviedbytes == 408)
+            {
+                var fdm = data.ByteArrayToStructureBigEndian<FGNetFDM>(0);
+
+                lastfdmdata = fdm;
+            }
+            else
+            {
+                log.Info("Bad Udp Packet " + receviedbytes);
+                return;
+            }  
         }
 
         /// <summary>

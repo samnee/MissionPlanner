@@ -110,6 +110,7 @@
             this.CHK_xplane10 = new System.Windows.Forms.CheckBox();
             this.BUT_sitl = new MissionPlanner.Controls.MyButton();
             this.CHK_debug = new System.Windows.Forms.CheckBox();
+            this.CHK_quad = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -682,10 +683,19 @@
             this.CHK_debug.Name = "CHK_debug";
             this.CHK_debug.UseVisualStyleBackColor = true;
             // 
+            // CHK_quad
+            // 
+            resources.ApplyResources(this.CHK_quad, "CHK_quad");
+            this.CHK_quad.Checked = true;
+            this.CHK_quad.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.CHK_quad.Name = "CHK_quad";
+            this.CHK_quad.UseVisualStyleBackColor = true;
+            // 
             // Simulation
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.CHK_quad);
             this.Controls.Add(this.CHK_debug);
             this.Controls.Add(this.BUT_sitl);
             this.Controls.Add(this.CHK_xplane10);
@@ -812,5 +822,6 @@
         private System.Windows.Forms.CheckBox CHK_xplane10;
         private Controls.MyButton BUT_sitl;
         private System.Windows.Forms.CheckBox CHK_debug;
+        private System.Windows.Forms.CheckBox CHK_quad;
     }
 }
