@@ -610,7 +610,7 @@ namespace MissionPlanner.Utilities
 
                     //ctls[controlindex].GraphPane.XAxis.Title.Text = "Freq Hz";
                     // nzg 20180308
-                    ctls[controlindex].GraphPane.XAxis.Title.Text = "Freq"+ "("+ (int)NUM_ScaleFreq.Value + "Hz"+ ")";
+                    ctls[controlindex].GraphPane.XAxis.Title.Text = "Freq"+ "(1/"+ (int)NUM_ScaleFreq.Value + "Hz"+ ")";
                     ctls[controlindex].GraphPane.YAxis.Title.Text = "Amplitude";
                     ctls[controlindex].GraphPane.Title.Text = "FFT " + sensordata.type + " - " +
                                                               Path.GetFileName(ofd.FileName) + " - " + samplerate +

@@ -293,6 +293,11 @@
             // 
             this.NUM_ScaleFreq.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.NUM_ScaleFreq.Location = new System.Drawing.Point(304, 469);
+            this.NUM_ScaleFreq.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             this.NUM_ScaleFreq.Name = "NUM_ScaleFreq";
             this.NUM_ScaleFreq.Size = new System.Drawing.Size(40, 21);
             this.NUM_ScaleFreq.TabIndex = 11;
