@@ -461,7 +461,12 @@ namespace MissionPlanner.Utilities
 
         private string zedGraphControl_PointValueEvent(ZedGraphControl sender, GraphPane pane, CurveItem curve, int iPt)
         {
-            return String.Format("{0} hz/{1} rpm", curve[iPt].X, curve[iPt].X*60.0);
+            // return String.Format("{0} hz/{1} rpm", curve[iPt].X, curve[iPt].X*60.0);
+
+            // nzg 20180307_3
+            //return String.Format("{0} hz/{1} Y", curve[iPt].X, curve[iPt].Y);
+            // nzg 20180308_4
+            return String.Format("{0} hz /{1} Y", curve[iPt].X /(int) NUM_ScaleFreq.Value, curve[iPt].Y);
         }
 
         private void but_fftimu_Click(object sender, EventArgs e)
@@ -561,7 +566,10 @@ namespace MissionPlanner.Utilities
 
                     samplerate = Math.Round(1000 / sensordata.timedelta, 1);
 
-                    double[] freqt = fft.FreqTable(N, (int)samplerate);
+                    //double[] freqt = fft.FreqTable(N, (int)samplerate);
+
+                    // nzg 20180308
+                    double[] freqt = fft.FreqTable(N, (int)samplerate * (int)NUM_ScaleFreq.Value);
 
                     double[] avgx = new double[N / 2];
                     double[] avgy = new double[N / 2];
@@ -600,7 +608,9 @@ namespace MissionPlanner.Utilities
 
                     ctls[controlindex].GraphPane.Legend.IsVisible = true;
 
-                    ctls[controlindex].GraphPane.XAxis.Title.Text = "Freq Hz";
+                    //ctls[controlindex].GraphPane.XAxis.Title.Text = "Freq Hz";
+                    // nzg 20180308
+                    ctls[controlindex].GraphPane.XAxis.Title.Text = "Freq"+ "("+ (int)NUM_ScaleFreq.Value + "Hz"+ ")";
                     ctls[controlindex].GraphPane.YAxis.Title.Text = "Amplitude";
                     ctls[controlindex].GraphPane.Title.Text = "FFT " + sensordata.type + " - " +
                                                               Path.GetFileName(ofd.FileName) + " - " + samplerate +
@@ -615,7 +625,8 @@ namespace MissionPlanner.Utilities
                     ctls[controlindex].Invalidate();
                     ctls[controlindex].AxisChange();
 
-                    ctls[controlindex].GraphPane.XAxis.Scale.Max = samplerate / 2;
+                    // nzg 20180307_3
+                    //ctls[controlindex].GraphPane.XAxis.Scale.Max = samplerate / 2;
 
                     ctls[controlindex].Refresh();
 
